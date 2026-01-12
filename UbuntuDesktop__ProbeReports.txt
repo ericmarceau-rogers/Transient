@@ -1,0 +1,276 @@
+
+root@ubuntu:/var/log# lsb_release -a
+
+No LSB modules are available.
+Distributor ID:	Ubuntu
+Description:	Ubuntu Resolute Raccoon (development branch)
+Release:	26.04
+Codename:	resolute
+
+
+
+root@ubuntu:/var/log# uname -a
+
+Linux ubuntu 6.17.0-6-generic #6-Ubuntu SMP PREEMPT_DYNAMIC Tue Oct  7 13:34:17 UTC 2025 x86_64 GNU/Linux
+
+
+
+root@ubuntu:/home/ubuntu# ip route
+
+default via 192.168.0.1 dev enp2s0 proto dhcp src 192.168.0.10 metric 100 
+192.168.0.0/24 dev enp2s0 proto kernel scope link src 192.168.0.10 metric 100 
+
+
+
+root@ubuntu:/home/ubuntu# ip link
+
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: enp2s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 00:26:18:8a:b5:7a brd ff:ff:ff:ff:ff:ff
+    altname enx0026188ab57a
+
+
+
+root@ubuntu:/home/ubuntu# ip addr
+
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute 
+       valid_lft forever preferred_lft forever
+2: enp2s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 00:26:18:8a:b5:7a brd ff:ff:ff:ff:ff:ff
+    altname enx0026188ab57a
+    inet 192.168.0.10/24 brd 192.168.0.255 scope global dynamic noprefixroute enp2s0
+       valid_lft 600885sec preferred_lft 600885sec
+    inet6 fd00:8494:8c30:fac2:226:18ff:fe8a:b57a/64 scope global dynamic noprefixroute 
+       valid_lft 535407sec preferred_lft 401550sec
+    inet6 fe80::226:18ff:fe8a:b57a/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+
+
+
+root@ubuntu:/home/ubuntu# ip route
+
+default via 192.168.0.1 dev enp2s0 proto dhcp src 192.168.0.10 metric 100 
+192.168.0.0/24 dev enp2s0 proto kernel scope link src 192.168.0.10 metric 100 
+root@ubuntu:/home/ubuntu# ping 8.8.8.8
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=117 time=14.9 ms
+64 bytes from 8.8.8.8: icmp_seq=2 ttl=117 time=13.9 ms
+64 bytes from 8.8.8.8: icmp_seq=3 ttl=117 time=13.8 ms
+64 bytes from 8.8.8.8: icmp_seq=4 ttl=117 time=13.8 ms
+^C
+--- 8.8.8.8 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3004ms
+rtt min/avg/max/mdev = 13.790/14.094/14.935/0.486 ms
+
+
+
+root@ubuntu:/home/ubuntu# lshw -C network
+
+  *-network                 
+       description: Ethernet interface
+       product: AR8121/AR8113/AR8114 Gigabit or Fast Ethernet
+       vendor: Qualcomm Atheros
+       physical id: 0
+       bus info: pci@0000:02:00.0
+       logical name: enp2s0
+       version: b0
+       serial: 00:26:18:8a:b5:7a
+       size: 1Gbit/s
+       capacity: 1Gbit/s
+       width: 64 bits
+       clock: 33MHz
+       capabilities: pm msi pciexpress bus_master cap_list ethernet physical tp 10bt 10bt-fd 100bt 100bt-fd 1000bt-fd autonegotiation
+       configuration: autonegotiation=on broadcast=yes driver=ATL1E driverversion=6.17.0-6-generic duplex=full firmware=L1e ip=192.168.0.10 latency=0 link=yes multicast=yes port=twisted pair speed=1Gbit/s
+       resources: irq:18 memory:fbec0000-fbefffff ioport:dc00(size=128)
+
+
+
+root@ubuntu:/var/log# grep -i network boot.log
+
+[  OK  ] Finished cloud-init-local.service - Cloud-init: Local Stage (pre-network).
+[  OK  ] Reached target network-pre.target - Preparation for Network.
+         Starting networkd-dispatcher.service - Dispatcher daemon for systemd-networkd...
+         Starting NetworkManager.service - Network Manager...
+         Starting NetworkManager-dispatcher.service - Network Manager Script Dispatcher Service...
+[  OK  ] Started NetworkManager-dispatcher.service - Network Manager Script Dispatcher Service.
+[  OK  ] Started networkd-dispatcher.service - Dispatcher daemon for systemd-networkd.
+
+
+
+root@ubuntu:/var/log# grep enp2s0 syslog
+
+2026-01-12T18:16:24.037969+00:00 ubuntu kernel: ATL1E 0000:02:00.0 enp2s0: renamed from eth0
+2026-01-12T18:16:25.783337+00:00 ubuntu networkd-dispatcher[2228]: ERROR:Unknown state for interface NetworkctlListState(idx=2, name='enp2s0', type='ether', operational='-', administrative='unmanaged'): -
+2026-01-12T18:16:29.114421+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.1142] manager: (enp2s0): new Ethernet device (/org/freedesktop/NetworkManager/Devices/2)
+2026-01-12T18:16:29.115702+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.1155] device (enp2s0): state change: unmanaged -> unavailable (reason 'managed', managed-type: 'external')
+2026-01-12T18:16:29.129408+00:00 ubuntu kernel: ATL1E 0000:02:00.0 enp2s0: NIC Link is Up <1000 Mbps Full Duplex>
+2026-01-12T18:16:29.143200+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.1431] device (enp2s0): carrier: link connected
+2026-01-12T18:16:29.147616+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.1452] device (enp2s0): state change: unavailable -> disconnected (reason 'carrier-changed', managed-type: 'full')
+2026-01-12T18:16:29.147731+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.1461] policy: auto-activating connection 'netplan-enp2s0' (7ea6f90b-3495-3533-948a-ef0035687c34)
+2026-01-12T18:16:29.147795+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.1468] device (enp2s0): Activation: starting connection 'netplan-enp2s0' (7ea6f90b-3495-3533-948a-ef0035687c34)
+2026-01-12T18:16:29.147848+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.1469] device (enp2s0): state change: disconnected -> prepare (reason 'none', managed-type: 'full')
+2026-01-12T18:16:29.147966+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.1472] device (enp2s0): state change: prepare -> config (reason 'none', managed-type: 'full')
+2026-01-12T18:16:29.148019+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.1478] device (enp2s0): state change: config -> ip-config (reason 'none', managed-type: 'full')
+2026-01-12T18:16:29.148363+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.1482] dhcp4 (enp2s0): activation: beginning transaction (timeout in 45 seconds)
+2026-01-12T18:16:29.149178+00:00 ubuntu avahi-daemon[2221]: Joining mDNS multicast group on interface enp2s0.IPv6 with address fe80::226:18ff:fe8a:b57a.
+2026-01-12T18:16:29.149261+00:00 ubuntu avahi-daemon[2221]: New relevant interface enp2s0.IPv6 for mDNS.
+2026-01-12T18:16:29.149306+00:00 ubuntu avahi-daemon[2221]: Registering new address record for fe80::226:18ff:fe8a:b57a on enp2s0.*.
+2026-01-12T18:16:29.221660+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.2215] dhcp4 (enp2s0): state changed new lease, address=192.168.0.10, acd pending
+2026-01-12T18:16:29.337891+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.3377] dhcp4 (enp2s0): state changed new lease, address=192.168.0.10
+2026-01-12T18:16:29.338371+00:00 ubuntu avahi-daemon[2221]: Joining mDNS multicast group on interface enp2s0.IPv4 with address 192.168.0.10.
+2026-01-12T18:16:29.338483+00:00 ubuntu avahi-daemon[2221]: New relevant interface enp2s0.IPv4 for mDNS.
+2026-01-12T18:16:29.338586+00:00 ubuntu avahi-daemon[2221]: Registering new address record for 192.168.0.10 on enp2s0.IPv4.
+2026-01-12T18:16:29.338824+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.3387] policy: set 'netplan-enp2s0' (enp2s0) as default for IPv4 routing and DNS
+2026-01-12T18:16:29.340891+00:00 ubuntu systemd-resolved[1329]: enp2s0: Bus client set search domain list to: hitronhub.home
+2026-01-12T18:16:29.341808+00:00 ubuntu systemd-resolved[1329]: enp2s0: Bus client set default route setting: yes
+2026-01-12T18:16:29.343104+00:00 ubuntu systemd-resolved[1329]: enp2s0: Bus client set DNS server list to: 9.9.9.9, 149.112.112.112
+2026-01-12T18:16:29.343440+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.3433] device (enp2s0): state change: ip-config -> ip-check (reason 'none', managed-type: 'full')
+2026-01-12T18:16:29.372778+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.3723] device (enp2s0): state change: ip-check -> secondaries (reason 'none', managed-type: 'full')
+2026-01-12T18:16:29.373022+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.3728] device (enp2s0): state change: secondaries -> activated (reason 'none', managed-type: 'full')
+2026-01-12T18:16:29.375043+00:00 ubuntu NetworkManager[2446]: <info>  [1768241789.3749] device (enp2s0): Activation: successful, device activated.
+2026-01-12T18:16:30.644222+00:00 ubuntu NetworkManager[2446]: <info>  [1768241790.6438] dhcp6 (enp2s0): activation: beginning transaction (timeout in 45 seconds)
+2026-01-12T18:16:30.645227+00:00 ubuntu avahi-daemon[2221]: Leaving mDNS multicast group on interface enp2s0.IPv6 with address fe80::226:18ff:fe8a:b57a.
+2026-01-12T18:16:30.645357+00:00 ubuntu avahi-daemon[2221]: Joining mDNS multicast group on interface enp2s0.IPv6 with address fd00:8494:8c30:fac2:226:18ff:fe8a:b57a.
+2026-01-12T18:16:30.645461+00:00 ubuntu avahi-daemon[2221]: Registering new address record for fd00:8494:8c30:fac2:226:18ff:fe8a:b57a on enp2s0.*.
+2026-01-12T18:16:30.645564+00:00 ubuntu avahi-daemon[2221]: Withdrawing address record for fe80::226:18ff:fe8a:b57a on enp2s0.
+
+
+
+root@ubuntu:/var/log# grep enp2s0 cloud-init.log
+
+2026-01-12 18:15:48,762 - util.py[DEBUG]: Reading from /sys/class/net/enp2s0/address (quiet=False)
+2026-01-12 18:15:48,762 - util.py[DEBUG]: Reading 18 bytes from /sys/class/net/enp2s0/address
+2026-01-12 18:15:48,763 - util.py[DEBUG]: Reading 7 bytes from /sys/class/net/enp2s0/device/device
+2026-01-12 18:15:48,764 - util.py[DEBUG]: Reading from /sys/class/net/enp2s0/carrier (quiet=False)
+2026-01-12 18:15:48,764 - net[DEBUG]: Interface has no carrier: enp2s0
+2026-01-12 18:15:48,764 - util.py[DEBUG]: Reading from /sys/class/net/enp2s0/dormant (quiet=False)
+2026-01-12 18:15:48,764 - util.py[DEBUG]: Reading from /sys/class/net/enp2s0/operstate (quiet=False)
+2026-01-12 18:15:48,766 - util.py[DEBUG]: Reading 7 bytes from /sys/class/net/enp2s0/device/device
+2026-01-12 18:15:48,766 - util.py[DEBUG]: Reading from /sys/class/net/enp2s0/carrier (quiet=False)
+2026-01-12 18:15:48,766 - net[DEBUG]: Interface has no carrier: enp2s0
+2026-01-12 18:15:48,766 - util.py[DEBUG]: Reading from /sys/class/net/enp2s0/dormant (quiet=False)
+2026-01-12 18:15:48,767 - util.py[DEBUG]: Reading from /sys/class/net/enp2s0/operstate (quiet=False)
+2026-01-12 18:15:48,813 - util.py[DEBUG]: Reading from /sys/class/net/enp2s0/type (quiet=False)
+2026-01-12 18:15:48,813 - util.py[DEBUG]: Reading 2 bytes from /sys/class/net/enp2s0/type
+2026-01-12 18:15:48,813 - stages.py[DEBUG]: applying net config names for {'ethernets': {'enp2s0': {'dhcp4': True, 'dhcp6': True, 'set-name': 'enp2s0', 'match': {'macaddress': '00:26:18:8a:b5:7a'}}}, 'version': 2}
+2026-01-12 18:15:48,813 - util.py[DEBUG]: Reading from /sys/class/net/enp2s0/device/device (quiet=False)
+2026-01-12 18:15:48,813 - util.py[DEBUG]: Reading 7 bytes from /sys/class/net/enp2s0/device/device
+2026-01-12 18:15:48,815 - util.py[DEBUG]: Reading 5 bytes from /sys/class/net/enp2s0/operstate
+2026-01-12 18:15:48,929 - net[DEBUG]: Detected interfaces {'enp2s0': {'downable': True, 'device_id': '0x1026', 'driver': 'ATL1E', 'mac': '00:26:18:8a:b5:7a', 'name': 'enp2s0', 'up': False}, 'lo': {'downable': False, 'device_id': None, 'driver': None, 'mac': '00:00:00:00:00:00', 'name': 'lo', 'up': True}}
+2026-01-12 18:15:48,929 - net[DEBUG]: no work necessary for renaming of [['00:26:18:8a:b5:7a', 'enp2s0', 'ATL1E', '0x1026']]
+2026-01-12 18:15:48,929 - stages.py[INFO]: Applying network configuration from fallback bringup=False: {'ethernets': {'enp2s0': {'dhcp4': True, 'dhcp6': True, 'set-name': 'enp2s0', 'match': {'macaddress': '00:26:18:8a:b5:7a'}}}, 'version': 2}
+2026-01-12 18:15:59,002 - subp.py[DEBUG]: Running command ['udevadm', 'test-builtin', 'net_setup_link', '/sys/class/net/enp2s0'] with allowed return codes [0] (shell=False, capture=True)
+2026-01-12 18:15:59,030 - performance.py[DEBUG]: Running ['udevadm', 'test-builtin', 'net_setup_link', '/sys/class/net/enp2s0'] took 0.028 seconds
+2026-01-12 18:16:29,496 - util.py[DEBUG]: Reading from /sys/class/net/enp2s0/address (quiet=False)
+2026-01-12 18:16:29,497 - util.py[DEBUG]: Reading 18 bytes from /sys/class/net/enp2s0/address
+2026-01-12 18:16:29,500 - util.py[DEBUG]: Reading 18 bytes from /sys/class/net/enp2s0/address
+2026-01-12 18:16:29,501 - stages.py[DEBUG]: applying net config names for {'ethernets': {'enp2s0': {'dhcp4': True, 'dhcp6': True, 'set-name': 'enp2s0', 'match': {'macaddress': '00:26:18:8a:b5:7a'}}}, 'version': 2}
+2026-01-12 18:16:29,501 - util.py[DEBUG]: Reading from /sys/class/net/enp2s0/device/device (quiet=False)
+2026-01-12 18:16:29,501 - util.py[DEBUG]: Reading 7 bytes from /sys/class/net/enp2s0/device/device
+2026-01-12 18:16:29,502 - util.py[DEBUG]: Reading 3 bytes from /sys/class/net/enp2s0/operstate
+2026-01-12 18:16:29,507 - net[DEBUG]: Detected interfaces {'enp2s0': {'downable': False, 'device_id': '0x1026', 'driver': 'ATL1E', 'mac': '00:26:18:8a:b5:7a', 'name': 'enp2s0', 'up': True}, 'lo': {'downable': False, 'device_id': None, 'driver': None, 'mac': '00:00:00:00:00:00', 'name': 'lo', 'up': True}}
+2026-01-12 18:16:29,508 - net[DEBUG]: no work necessary for renaming of [['00:26:18:8a:b5:7a', 'enp2s0', 'ATL1E', '0x1026']]
+
+
+
+root@ubuntu:/var/log# inxi -Fxxx
+
+System:
+  Host: ubuntu Kernel: 6.17.0-6-generic arch: x86_64 bits: 64 compiler: gcc
+    v: 15.2.0 clocksource: tsc
+  Desktop: GNOME v: 49.2 tk: GTK v: 3.24.50 wm: gnome-shell
+    tools: gsd-screensaver-proxy dm: GDM3 v: 49.0.1 Distro: Ubuntu 26.04
+    (Resolute Raccoon)
+Machine:
+  Type: Desktop Mobo: ASUSTeK model: M4A78-E v: Rev 1.xx
+    serial: 101048580000313 uuid: 00dc001e-8c00-01fc-92e5-0026188ab57a
+    Firmware: BIOS vendor: American Megatrends v: 2603 date: 04/13/2011
+CPU:
+  Info: quad core model: AMD Phenom II X4 810 bits: 64 type: MCP
+    smt: <unsupported> arch: K10 rev: 2 cache: L1: 512 KiB L2: 2 MiB L3: 4 MiB
+  Speed (MHz): avg: 800 min/max: 800/2600 boost: disabled volts: 1.5 V
+    ext-clock: 200 MHz cores: 1: 800 2: 800 3: 800 4: 800 bogomips: 20871
+  Flags-basic: ht lm nx pae sse sse2 sse3 sse4a svm
+Graphics:
+  Device-1: Advanced Micro Devices [AMD/ATI] RS780D [Radeon HD 3300]
+    vendor: ASUSTeK driver: radeon v: kernel arch: TeraScale ports:
+    active: VGA-1 empty: DVI-D-1 bus-ID: 01:05.0 chip-ID: 1002:9614
+    class-ID: 0300
+  Display: unspecified server: X.Org v: 24.1.8 with: Xwayland v: 24.1.8
+    compositor: gnome-shell driver: dri: r600 gpu: radeon display-ID: :0
+    screens: 1
+  Screen-1: 0 s-res: 1440x900 s-dpi: 96 s-size: 381x238mm (15.00x9.37")
+    s-diag: 449mm (17.69")
+  Monitor-1: VGA-1 model: HP w1707 serial: CNC918Q23B res: mode: 1440x900
+    hz: 60 scale: 100% (1) dpi: 99 size: 370x230mm (14.57x9.06")
+    diag: 436mm (17.2") modes: max: 1440x900 min: 720x400
+  API: EGL v: 1.5 hw: drv: amd r600 platforms: device: 0 drv: r600 device: 1
+    drv: swrast gbm: drv: r600 surfaceless: drv: r600 x11: drv: r600
+    inactive: wayland
+  API: OpenGL v: 4.5 compat-v: 3.3 vendor: mesa v: 25.2.8-2ubuntu1
+    glx-v: 1.4 direct-render: yes renderer: AMD RS780 (DRM 2.51.0 /
+    6.17.0-6-generic LLVM 20.1.8) device-ID: 1002:9614
+  Info: Tools: api: eglinfo,glxinfo x11: xdriinfo, xdpyinfo, xprop, xrandr
+Audio:
+  Device-1: Advanced Micro Devices [AMD/ATI] SBx00 Azalia
+    driver: snd_hda_intel v: kernel bus-ID: 00:14.2 chip-ID: 1002:4383
+    class-ID: 0403
+  Device-2: Advanced Micro Devices [AMD/ATI] RS780 HDMI Audio [Radeon
+    3000/3100 / HD 3200/3300] driver: snd_hda_intel v: kernel bus-ID: 01:05.1
+    chip-ID: 1002:960f class-ID: 0403
+  API: ALSA v: k6.17.0-6-generic status: kernel-api
+  Server-1: PipeWire v: 1.4.9 status: n/a (root, process) with:
+    1: pipewire-pulse status: active 2: wireplumber status: active
+    3: pipewire-alsa type: plugin
+Network:
+  Device-1: Qualcomm Atheros AR8121/AR8113/AR8114 Gigabit or Fast Ethernet
+    vendor: ASUSTeK driver: ATL1E v: N/A pcie: speed: 2.5 GT/s lanes: 1
+    port: dc00 bus-ID: 02:00.0 chip-ID: 1969:1026 class-ID: 0200
+  IF: enp2s0 state: up speed: 1000 Mbps duplex: full mac: 00:26:18:8a:b5:7a
+Drives:
+  Local Storage: total: 5.94 TiB used: 803 MiB (0.0%)
+  ID-1: /dev/sda vendor: Western Digital model: WD5000AAKS-00V1A0
+    size: 465.76 GiB speed: 1.5 Gb/s tech: N/A serial: WD-WMAWF0060756
+    fw-rev: 1D05 scheme: GPT
+  ID-2: /dev/sdb vendor: Western Digital model: WD20EZRX-00DC0B0
+    size: 1.82 TiB speed: 3.0 Gb/s tech: N/A serial: WD-WCC300611350
+    fw-rev: 0A80 scheme: GPT
+  ID-3: /dev/sdc vendor: Verbatim model: STORE N GO size: 28.91 GiB
+    type: USB rev: 2.1 spd: 480 Mb/s lanes: 1 tech: N/A serial: 07189853E6EEEF63
+    fw-rev: PMAP scheme: GPT
+  ID-4: /dev/sdd vendor: Western Digital model: WD40EDAZ-11SLVB0
+    size: 3.64 TiB type: USB rev: 2.1 spd: 480 Mb/s lanes: 1 tech: HDD rpm: 5400
+    serial: WD-WX32D60EUYRJ fw-rev: 4009 scheme: GPT
+Partition:
+  ID-1: / size: 1.76 GiB used: 551.7 MiB (30.7%) fs: overlay source: ERR-102
+  ID-2: /var/log size: 22.36 GiB used: 17.9 MiB (0.1%) fs: ext4
+    dev: /dev/sdc4
+Swap:
+  ID-1: swap-1 type: partition size: 6 GiB used: 785.1 MiB (12.8%)
+    priority: -2 dev: /dev/sda1
+  ID-2: swap-2 type: partition size: 996.2 MiB used: 0 KiB (0.0%)
+    priority: -3 dev: /dev/sdb10
+  ID-3: swap-3 type: partition size: 996.2 MiB used: 0 KiB (0.0%)
+    priority: -4 dev: /dev/sdb11
+  ID-4: swap-4 type: partition size: 1024 MiB used: 0 KiB (0.0%)
+    priority: -5 dev: /dev/sdb2
+  ID-5: swap-5 type: partition size: 6 GiB used: 0 KiB (0.0%) priority: -6
+    dev: /dev/sdb5
+  ID-6: swap-6 type: partition size: 4 GiB used: 0 KiB (0.0%) priority: -7
+    dev: /dev/sdd2
+Sensors:
+  System Temperatures: cpu: 59.0 C mobo: 40.0 C
+  Fan Speeds (rpm): cpu: 2566 case-1: 0 case-2: 0
+  Power: 12v: 12.42 5v: N/A 3.3v: 3.46 vbat: N/A
+Info:
+  Memory: total: 4 GiB note: est. available: 3.51 GiB used: 2.17 GiB (61.8%)
+  Processes: 304 Power: uptime: 1h 18m states: freeze,mem,disk suspend: deep
+    wakeups: 0 hibernate: platform Init: systemd v: 257 default: graphical
+  Packages: 1854 pm: dpkg pkgs: 1839 pm: snap pkgs: 15 Compilers: N/A
+    Shell: Bash (sudo) v: 5.3.3 running-in: ptyxis-agent inxi: 3.3.40
+
